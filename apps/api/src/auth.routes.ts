@@ -49,6 +49,7 @@ router.post('/register', async (req, res) => {
     if (err instanceof z.ZodError) {
       res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: err.errors }});
     } else {
+      console.error('Registration error:', err);
       res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Server error' }});
     }
   }
