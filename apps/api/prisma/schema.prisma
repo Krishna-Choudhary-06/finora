@@ -1,0 +1,57 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  CUSTOMER
+  FINANCIAL_ADVISOR
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  DISABLED
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  firstName    String
+  lastName     String
+  role         Role      @default(CUSTOMER)
+  status       UserStatus @default(ACTIVE)
+  emailVerified Boolean  @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  sessions     Session[]
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model AuditEvent {
+  id        String   @id @default(uuid())
+  actor     String?
+  event     String
+  context   String?
+  metadata  Json?
+  timestamp DateTime @default(now())
+
+  @@index([actor])
+  @@index([event])
+}
